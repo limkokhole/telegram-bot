@@ -1,0 +1,9 @@
+1. 设置 Webhook 地址：
+
+https://api.telegram.org/bot1240632995:AAF4Q60tJXrV_RSxhbDz5hEc0-hzVjsMiQA/setwebhook?url=https://telegram.pushy.site
+
+
+2. 发送消息给指定人：
+
+
+https://api.telegram.org/bot1240632995:AAF4Q60tJXrV_RSxhbDz5hEc0-hzVjsMiQA/sendMessage?chat_id=1040935564&text="Hello"

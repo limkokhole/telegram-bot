@@ -1,0 +1,8 @@
+lxml
+telegraph
+flask
+python-telegram-bot
+requests
+python-crontab
+schedule
+redis
