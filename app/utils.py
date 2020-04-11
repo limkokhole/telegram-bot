@@ -1,5 +1,6 @@
 from app import telegraph
 import logging
+import re
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,3 +25,15 @@ def get_nickname(user):
         return user.last_name
     elif user.last_name is None:
         return user.first_name
+
+
+def check_ip(ip):
+    p = re.compile('^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$')
+    if p.match(ip):
+        return True
+    else:
+        return False
+
+
+def clean_text(s):
+    return s.replace('\r', '').replace('\n', '').replace(' ', '')

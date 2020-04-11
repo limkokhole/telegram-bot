@@ -1,13 +1,12 @@
-from app import bot
+from app import bot, models
 from app.utils import logger
-from app import models
 import requests
 from lxml import etree
 
 sheldon_old_episode = None
 
 
-def sheldon():
+def sheldon_job():
     global sheldon_old_episode
 
     resp = requests.get('https://91mjw.com/video/2248.htm')

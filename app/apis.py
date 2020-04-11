@@ -21,5 +21,3 @@ def index_post():
     except Exception:
         bot.sendMessage(chat_id=msg.chat.id, text='未知错误')
     return 'ok'
-
-
