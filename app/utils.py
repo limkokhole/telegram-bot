@@ -1,6 +1,7 @@
 from app import telegraph
 import logging
 import re
+from selenium import webdriver
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,3 +38,18 @@ def check_ip(ip):
 
 def clean_text(s):
     return s.replace('\r', '').replace('\n', '').replace(' ', '')
+
+
+def save_html_screenshot(id, html_path):
+    options = webdriver.ChromeOptions()
+    options.add_argument('--no-sandbox')
+    options.add_argument('--headless')
+    options.add_argument("--start-maximized")
+
+    driver = webdriver.Chrome(chrome_options=options, executable_path='./chromedriver')
+    driver.get('file:///{}'.format(html_path))
+
+    img_path = 'temp/{}.png'.format(id)
+    driver.save_screenshot(img_path)
+    driver.close()
+    return img_path
