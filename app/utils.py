@@ -2,11 +2,18 @@ from app import telegraph
 import logging
 import re
 from selenium import webdriver
+import config
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+if config.DEBUG:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(filename)s(func %(funcName)s, line %(lineno)d) - %(levelname)s - %(message)s'
+    )
+else:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 logger = logging.getLogger(__name__)
 
 

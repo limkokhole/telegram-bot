@@ -4,8 +4,13 @@ from app.utils import logger
 import re
 import uuid
 import requests
-from lxml import etree
 import plotly
+from lxml import etree
+from you_get.extractors.bilibili import site, download
+
+
+def bilibili_url(bv):
+    return 'https://www.bilibili.com/video/{}'.format(bv)
 
 
 def query_ip(ip):
@@ -19,13 +24,18 @@ def query_ip(ip):
 
 
 def get_bilibili_cover_img(bv):
-    resp = requests.get('https://www.bilibili.com/video/{}'.format(bv))
+    resp = requests.get(bilibili_url(bv))
     result = etree.HTML(resp.text).xpath('/html/head/meta[11]/@content')
 
     if len(result) == 0:
         return '未知'
     else:
         return result[0]
+
+
+def download_bilibili_video(bv):
+    download(bilibili_url(bv), output_dir='/download', merge=True)
+    return site.title
 
 
 def convert_tb_link(link):
@@ -75,7 +85,7 @@ def query_price(link):
     logger.debug('save html to: {}'.format(path))
 
     suggestion = get_buy_suggestion(cur_price, lowest_price, price_list)
-    return utils.save_html_screenshot(temp_id, path), suggestion
+    return utils.save_html_screenshot(temp_id, path), '小关觉得{}'.format(suggestion)
 
 
 # 通过价格的对比获取购买建议（是否是最佳的购买时期）
@@ -90,12 +100,12 @@ def get_buy_suggestion(cur_price, lowest_price, history_prices):
             lower_than_history = False
 
     if lower_than_history:
-        result = '历史最低，非常建议购买！！！'
+        result = '发现当前为历史最低价格，非常建议购买！！！'
     else:
         if cur_price > lowest_price:
-            result = '不是最佳时刻！最低价格为：{}'.format(lowest_price)
+            result = '现在不是最佳时刻！最低价格为：{}'.format(lowest_price)
         else:
-            result = '是最佳时刻'
+            result = '现在是最佳时刻'
 
     logger.debug('购买意见为： {}'.format(result))
     return result
