@@ -1,3 +1,5 @@
+import time
+
 from app import telegraph
 import logging
 import re
@@ -15,6 +17,11 @@ else:
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 logger = logging.getLogger(__name__)
+
+options = webdriver.ChromeOptions()
+options.add_argument('--no-sandbox')
+options.add_argument('--headless')
+options.add_argument("--start-maximized")
 
 
 def get_telegraph_link(title=None, content=None):
@@ -48,11 +55,6 @@ def clean_text(s):
 
 
 def save_html_screenshot(id, html_path):
-    options = webdriver.ChromeOptions()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--headless')
-    options.add_argument("--start-maximized")
-
     driver = webdriver.Chrome(chrome_options=options, executable_path='./chromedriver')
     driver.get('file:///{}'.format(html_path))
 
@@ -60,3 +62,11 @@ def save_html_screenshot(id, html_path):
     driver.save_screenshot(img_path)
     driver.close()
     return img_path
+
+
+def get_page_source(url):
+    driver = webdriver.Chrome(chrome_options=options, executable_path='./chromedriver')
+    driver.get(url)
+    # 等待 JS 加载完成，获取渲染好的代码
+    time.sleep(1)
+    return driver.page_source

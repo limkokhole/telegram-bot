@@ -8,13 +8,21 @@ import plotly
 from lxml import etree
 from you_get.extractors.bilibili import site, download
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36'
+}
+
+
+def http_get(url):
+    return requests.get(url, headers=headers)
+
 
 def bilibili_url(bv):
     return 'https://www.bilibili.com/video/{}'.format(bv)
 
 
 def query_ip(ip):
-    resp = requests.get('http://ip.yimao.com/{}.html'.format(ip))
+    resp = http_get('http://ip.yimao.com/{}.html'.format(ip))
     result = etree.HTML(resp.text).xpath('//*[@id="yimaos"]/form/ul[2]/li[2]/text()')
 
     if len(result) == 0:
@@ -24,7 +32,7 @@ def query_ip(ip):
 
 
 def get_bilibili_cover_img(bv):
-    resp = requests.get(bilibili_url(bv))
+    resp = http_get(bilibili_url(bv))
     result = etree.HTML(resp.text).xpath('/html/head/meta[11]/@content')
 
     if len(result) == 0:
@@ -38,14 +46,44 @@ def download_bilibili_video(bv):
     return site.title
 
 
-def convert_tb_link(link):
-    resp = requests.get(link).text
-    return re.findall("var url = '(.*?)';", resp, re.S)[0]
+# 通过 https://www.zhihu.com/zvideo/{id} 获取 https://www.zhihu.com/video/{id} 的链接
+def get_zhihu_video_link(zvideo_id):
+    resp = http_get('https://www.zhihu.com/zvideo/{}'.format(zvideo_id))
+    video_url = etree.HTML(resp.text).xpath('//iframe/@src')[0]
+
+    return get_zhihu_video_download_url(video_url)
+
+
+# 通过 https://www.zhihu.com/video/{id} 链接获取 https://vdn2.vzuu.com 视频下载链接
+def get_zhihu_video_download_url(video_url):
+    page_source = utils.get_page_source(video_url)
+    src = etree.HTML(page_source).xpath('//*[@id="player"]/div/div/div[1]/video/@src')
+    print("src:", src)
+    if len(src) == 0:
+        logger.error('没有发现视频链接')
+        return None
+    return src[0]
+
+
+def get_download_list_by_question_url(question_url):
+    resp = http_get(question_url)
+    elements = etree.HTML(resp.text).xpath('//div[@class="Card AnswerCard"]/div/div/div[2]/div[1]/span/a')
+
+    result = []
+    for e in elements:
+        redirect_url = e.xpath('@href')[0]
+        video_id = re.findall('/video/(.*?)$', redirect_url, re.S)[0]
+
+        result.append({
+            'title': e.xpath('@data-name')[0],
+            'video_id': video_id
+        })
+    return result
 
 
 # 查询价格变化趋势
 def query_price(link):
-    html = requests.get('http://p.zwjhl.com/price.aspx?url={}'.format(link)).text
+    html = http_get('http://p.zwjhl.com/price.aspx?url={}'.format(link)).text
     if html.find('该商品暂未收录') != -1:
         return None, None
 
