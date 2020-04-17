@@ -1,6 +1,7 @@
 from app import utils
 from pathlib import Path
 from app.utils import logger
+from datetime import datetime
 import re
 import uuid
 import requests
@@ -58,7 +59,6 @@ def get_zhihu_video_link(zvideo_id):
 def get_zhihu_video_download_url(video_url):
     page_source = utils.get_page_source(video_url)
     src = etree.HTML(page_source).xpath('//*[@id="player"]/div/div/div[1]/video/@src')
-    print("src:", src)
     if len(src) == 0:
         logger.error('没有发现视频链接')
         return None
@@ -72,6 +72,8 @@ def get_download_list_by_question_url(question_url):
     result = []
     for e in elements:
         redirect_url = e.xpath('@href')[0]
+        if not redirect_url.startswith('https://link.zhihu.com/?target=https%3A//www.zhihu.com/video/'):
+            continue
         video_id = re.findall('/video/(.*?)$', redirect_url, re.S)[0]
 
         result.append({
@@ -107,7 +109,7 @@ def query_price(link):
     result = re.findall("\[(.*?)\]", temp, re.S)
     for each in result:
         arr = each.split(",")
-        timestamp_list.append(int(arr[0]))
+        timestamp_list.append(datetime.fromtimestamp(int(arr[0]) / 1000).strftime('%Y-%m-%d'))
         price_list.append(float(arr[1]))
 
     temp_id = str(uuid.uuid4())

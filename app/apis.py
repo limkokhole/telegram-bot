@@ -2,6 +2,7 @@ from app import app, bot
 from app import models
 from app.handler import handle_msg, handle_callback_query
 from app.utils import logger
+import logging
 from flask import request
 import telegram
 
@@ -21,14 +22,14 @@ def index_post():
             handle_msg(msg)
             models.add_new_user(msg)
         except Exception as e:
-            logger.error(e)
+            logging.exception(e)
             bot.sendMessage(chat_id=msg.chat.id, text='未知错误')
 
     elif update.callback_query:
         try:
             handle_callback_query(update.callback_query)
         except Exception as e:
-            logger.error(e)
+            logging.exception(e)
             chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text='未知错误')
     return 'ok'

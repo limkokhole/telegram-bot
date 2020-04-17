@@ -13,4 +13,14 @@ telegraph = Telegraph()
 
 redis = py_redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
 
+
+class Pair(object):
+    key = None
+    value = None
+
+    def __init__(self, k, v):
+        self.key = k
+        self.value = v
+
+
 from . import apis

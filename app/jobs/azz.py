@@ -13,6 +13,8 @@ def get_first_page_urls(username):
     return etree.HTML(resp.text).xpath('//div[@class="post-item-content"]/p/img/@data-src')
 
 
+# ----------------------- public method -----------------------
+
 # 初始化历史数据，将第一页所有的图片 urls 存储到 redis 集合中
 def init_azz_net(username):
     for url in get_first_page_urls(username):
@@ -28,5 +30,5 @@ def azz_net_job(username):
         logger.info('检测到 {} 有新的作品发布'.format(username))
         for user_id in models.get_all_user_id():
             content = '{} 发布了新的作品，图片链接为： \n{}'.format(username, latest_pic_url)
-            bot.sendMessage(chat_id=user_id, text=content)
+            bot.send_message(chat_id=user_id, text=content)
         redis.sadd(key(username), latest_pic_url)
