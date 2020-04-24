@@ -28,7 +28,7 @@ def get_telegraph_link(title=None, content=None):
     telegraph.create_account(short_name=str('tom'))
     response = telegraph.create_page(
         title=title,
-        content=content
+        html_content=content
     )
     return 'https://telegra.ph/{}'.format(response['path'])
 

@@ -5,6 +5,8 @@ import config
 import re
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+help_telegraph_link = None
+
 
 def handle_msg(msg):
     text = msg.text
@@ -87,26 +89,6 @@ def handle_msg(msg):
         bot.send_message(chat_id=chat_id, text=text)
 
 
-def handle_command(cmd):
-    logger.info("handle /{} command".format(cmd))
-
-    if cmd == 'start':
-        return start_handler()
-    elif cmd == 'help':
-        return help_handler()
-    else:
-        return '未知命令'
-
-
-def start_handler():
-    return '该机器人目前可支持查询 IP 所在位置和提取 B 站指定 BV 号视频的封面图片链接'
-
-
-def help_handler():
-    with open('./help.txt') as f:
-        return f.read()
-
-
 def handle_callback_query(query):
     logger.info(query.data)
 
@@ -134,3 +116,29 @@ def handle_callback_query(query):
     elif query_type == 'download_zhihu_video':
         download_url = services.get_zhihu_video_download_url('https://www.zhihu.com/video/{}'.format(query_value))
         query.edit_message_text(text=download_url)
+
+
+def handle_command(cmd):
+    logger.info("handle /{} command".format(cmd))
+
+    if cmd == 'start':
+        return start_handler()
+    elif cmd == 'help':
+        return help_handler()
+    else:
+        return '未知命令'
+
+
+def start_handler():
+    return '该机器人目前可支持查询 IP 所在位置和提取 B 站指定 BV 号视频的封面图片链接'
+
+
+def help_handler():
+    global help_telegraph_link
+
+    with open('./help.html') as f:
+        content = f.read()
+
+    if not help_telegraph_link:
+        help_telegraph_link = utils.get_telegraph_link('小关使用指南', content)
+    return help_telegraph_link

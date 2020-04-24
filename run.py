@@ -11,20 +11,9 @@ def subscribe_azz_user(username):
     schedule.every(1).days.do(jobs.azz_net_job, username)
 
 
-def subscribe_meituan_blog():
-    key = jobs.blog_key('meituan')
-    func = jobs.get_meituan_first_page
-
+def subscribe_blog(key, func):
     jobs.init_job(key, func)
-    schedule.every(1).days.do(jobs.check_update, key, func)
-
-
-def subscribe_taobao_blog():
-    key = jobs.blog_key('taobao')
-    func = jobs.get_taobao_first_page
-
-    jobs.init_job(key, func)
-    schedule.every(1).days.do(jobs.check_update, key, func)
+    schedule.every(15).seconds.do(jobs.check_update, key, func)
 
 
 def runnable():
@@ -39,8 +28,10 @@ def runnable():
     subscribe_azz_user('fleurdelys')
 
     # 订阅博客
-    subscribe_meituan_blog()
-    subscribe_taobao_blog()
+    subscribe_blog(jobs.blog_key('meituan'), jobs.get_meituan_first_page)
+    subscribe_blog(jobs.blog_key('taobao'), jobs.get_taobao_first_page)
+    subscribe_blog(jobs.blog_key('ruanyifeng'), jobs.get_ryf_first_page)
+    subscribe_blog(jobs.blog_key('program-think'), jobs.get_program_think_first_page)
 
     while True:
         schedule.run_pending()
